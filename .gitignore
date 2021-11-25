@@ -1,0 +1,87 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Datasource local storage ignored files
+/../../../../../../../../:\University_Cristina\Facultate\Master_anul_1\Programare_avansata_Java\ProgramareWeb_semigrupa2\Laborator6\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+
+# Acoperă IDE-uri JetBrains: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm și Rider
+# Referință: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+TaskModel/.idea/
+TaskModel/target/
+TaskModel/**/*.iml
+
+# Lucruri specifice utilizatorului
+.idea / ** / workspace.xml
+.idea / ** / sarcini.xml
+.idea / ** / utilizare.statistici.xml
+.idee / ** / dicționare
+.idee / ** / raft
+
+# Specific utilizatorului AWS
+.idea / ** / aws.xml
+
+# Fișiere generate
+.idea / ** / contentModel.xml
+
+# Fișiere sensibile sau cu frecvență ridicată
+.idea / ** / dataSources /
+.idea / ** / dataSources.ids
+.idea / ** / dataSources.local.xml
+.idea / ** / sqlDataSources.xml
+.idea / ** / dynamic.xml
+.idea / ** / uiDesigner.xml
+.idea / ** / dbnavigator.xml
+
+# Gradle
+.idea / ** / gradle.xml
+.idee / ** / biblioteci
+
+# Gradle și Maven cu import automat
+# Când utilizați Gradle sau Maven cu import automat, ar trebui să excludeți fișierele module,
+# deoarece acestea vor fi recreate și pot provoca pierderi. Anulați comentariile dacă utilizați
+# import automat.
+# .idee/artefacte
+# .idea/compiler.xml
+# .idea/jarRepositories.xml
+# .idea/module.xml
+# .idea/*.iml
+# .idee/module
+# *.iml
+# *.ipr
+
+# CMake
+cmake-build- * /
+
+# Pluginul Mongo Explorer
+.idea / ** / mongoSettings.xml
+
+# Format de proiect bazat pe fișiere
+* .iws
+
+# IntelliJ
+afară /
+
+# plugin-ul mpeltonen/sbt-idea
+.idee_module /
+
+# plugin JIRA
+atlassian-ide-plugin.xml
+
+# Plugin Clojure cursiv
+.idea / replstate.xml
+
+# Plugin Crashlytics (pentru Android Studio și IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.proprietăţi
+crashlytics-build.properties
+țesătură.proprietăți
+
+# Client de odihnă bazat pe editor
+.idea / httpRequests
+
+# Android studio 3.1+ fișier cache serializat
+.idea / caches / build_file_checksums.ser
