@@ -18,6 +18,10 @@ Laborator9-RoomEntity/.idea/
 Laborator9-RoomEntity/target/
 Laborator9-RoomEntity/**/*.iml
 
+CourseProject/.idea/
+CourseProject/target/
+CourseProject/**/*.iml
+
 # Lucruri specifice utilizatorului
 .idea / ** / workspace.xml
 .idea / ** / sarcini.xml
