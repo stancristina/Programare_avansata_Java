@@ -24,11 +24,11 @@ public class QuestionController {
     private QuestionService questionService;
 
     @GetMapping(path = "/questions", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> getQuestions(Question question) {
+    public ResponseEntity<Iterable<Question>> getQuestions() {
         log.debug("REST request to get all Questions");
         Collection<Question> questions = questionService.getQuestions();
         if (!questions.isEmpty()) {
-            return ResponseEntity.ok(question);
+            return ResponseEntity.ok(questions);
         } else {
             return ResponseEntity.noContent().build();
         }
@@ -42,17 +42,17 @@ public class QuestionController {
     }
 
     @PostMapping(path = "/questions", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Void> addQuestion(String question, String answearA, String answearB, String answearC,
-                                            String correctAnswear, Integer questionType) {
+    public ResponseEntity<Void> addQuestion(String question, String answerA, String answerB, String answerC,
+                                            String correctAnswer, Integer questionType) {
         log.debug("REST request to add Question");
-        Question question1 = new Question(question, answearA, answearB, answearC, correctAnswear, questionType);
+        Question question1 = new Question(question, answerA, answerB, answerC, correctAnswer, questionType);
         questionService.addQuestion(question1);
         URI uri = WebMvcLinkBuilder.linkTo(getClass()).slash("questions").slash(question1.getId()).toUri();
         return ResponseEntity.created(uri).build();
     }
 
     @PutMapping(path = "/questions/{id}")
-    public ResponseEntity<Question> updateQuestion(@PathVariable Long id, Question question) {
+    public ResponseEntity<Question> updateQuestion(@PathVariable Long id, @RequestBody Question question) {
         log.debug("REST request to update Question");
         if (questionService.updateQuestion(question, id)) {
             return ResponseEntity.noContent().build();

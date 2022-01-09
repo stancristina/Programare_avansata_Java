@@ -23,6 +23,9 @@ public class Lesson {
     @JsonIgnore
     private Chapter chapter;
 
+    public Lesson() {
+    }
+
     public Lesson(String title, String orderNumber) {
         this.title = title;
         this.orderNumber = orderNumber;

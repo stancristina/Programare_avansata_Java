@@ -29,13 +29,13 @@ public class CourseService {
         return courseRepository.findById(id);
     }
 
-    public Course addCourse(Course course) throws IOException {
+    public Course addCourse(Course course){
         log.debug("Request to add Courses");
         courseRepository.save(course);
         return course;
     }
 
-    public boolean updateCourse(Course course, Long id) throws IOException {
+    public boolean updateCourse(Course course, Long id){
         log.debug("Request to update Course");
         if (courseRepository.findById(id).isPresent()) {
             course.setId(id);
@@ -46,7 +46,7 @@ public class CourseService {
         }
     }
 
-    public boolean patchCourse(Course course, Long id) throws IOException {
+    public boolean patchCourse(Course course, Long id) {
         log.debug("Request to patch Course");
         Optional<Course> existingCourse = courseRepository.findById(id);
         if (existingCourse.isPresent()) {

@@ -45,6 +45,14 @@ public class Course implements BaseModel {
         id = UUID.randomUUID().getMostSignificantBits();
     }
 
+    public Course(String title, String description, String difficulty, LocalDate released, String thumbnailUrl) {
+        this.title = title;
+        this.description = description;
+        this.difficulty = difficulty;
+        this.released = released;
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
     public Long getId() {
         return id;
     }

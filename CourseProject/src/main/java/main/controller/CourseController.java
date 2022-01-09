@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import main.model.Chapter;
 import main.model.Course;
+import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import main.service.CourseService;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -63,31 +66,40 @@ public class CourseController {
         }
     }
 
-    @Operation(summary = "Create a course", operationId = "addCourse")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Course was created",
-                    headers = {@Header(name = "location", schema = @Schema(type = "String"))}
-            ),
-            @ApiResponse(responseCode = "500", description = "Something went wrong"),
-            @ApiResponse(responseCode = "204", description = "Bulk courses created")
-    })
-    @PostMapping("/courses")
-    public ResponseEntity<Void> addCourse(@RequestBody String payload, @RequestHeader(required = false, name = "X-Action") String action) {
+//    @Operation(summary = "Create a course", operationId = "addCourse")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "201", description = "Course was created",
+//                    headers = {@Header(name = "location", schema = @Schema(type = "String"))}
+//            ),
+//            @ApiResponse(responseCode = "500", description = "Something went wrong"),
+//            @ApiResponse(responseCode = "204", description = "Bulk courses created")
+//    })
+//    @PostMapping("/courses")
+//    public ResponseEntity<Void> addCourse(@RequestBody String payload, @RequestHeader(required = false, name = "X-Action") String action) {
+//        log.debug("REST request to add Course");
+//        try {
+//            if ("bulk".equals(action)) {
+//                for (Course course : new ObjectMapper().registerModule(new JavaTimeModule()).readValue(payload, Course[].class)) {
+//                    courseService.addCourse(course);
+//                }
+//                return ResponseEntity.noContent().build();
+//            } else {
+//                Course course = courseService.addCourse(new ObjectMapper().registerModule(new JavaTimeModule()).readValue(payload, Course.class));
+//                URI uri = WebMvcLinkBuilder.linkTo(getClass()).slash(course.getId()).toUri();
+//                return ResponseEntity.created(uri).build();
+//            }
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
+
+    @PostMapping(path = "/courses", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ResponseEntity<Void> addCourses(String title, String description, String difficulty, String released, String thumbnailUrl) {
         log.debug("REST request to add Course");
-        try {
-            if ("bulk".equals(action)) {
-                for (Course course : new ObjectMapper().registerModule(new JavaTimeModule()).readValue(payload, Course[].class)) {
-                    courseService.addCourse(course);
-                }
-                return ResponseEntity.noContent().build();
-            } else {
-                Course course = courseService.addCourse(new ObjectMapper().registerModule(new JavaTimeModule()).readValue(payload, Course.class));
-                URI uri = WebMvcLinkBuilder.linkTo(getClass()).slash(course.getId()).toUri();
-                return ResponseEntity.created(uri).build();
-            }
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        Course course = new Course(title, description, difficulty, LocalDate.parse(released), thumbnailUrl);
+        courseService.addCourse(course);
+        URI uri = WebMvcLinkBuilder.linkTo(getClass()).slash("courses").slash(course.getId()).toUri();
+        return ResponseEntity.created(uri).build();
     }
 
     @Operation(summary = "Update a course", operationId = "updateCourse")
@@ -99,14 +111,10 @@ public class CourseController {
     @PutMapping("/courses/{id}")
     public ResponseEntity<Void> updateCourse(@RequestBody Course course, @PathVariable Long id) {
         log.debug("REST request to update Course");
-        try {
-            if (courseService.updateCourse(course, id)) {
-                return ResponseEntity.noContent().build();
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        if (courseService.updateCourse(course, id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -119,14 +127,10 @@ public class CourseController {
     @PatchMapping("/courses/{id}")
     public ResponseEntity<Void> patchCourse(@RequestBody Course course, @PathVariable Long id) {
         log.debug("REST request to patch Course");
-        try {
-            if (courseService.patchCourse(course, id)) {
-                return ResponseEntity.noContent().build();
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        if (courseService.patchCourse(course, id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 

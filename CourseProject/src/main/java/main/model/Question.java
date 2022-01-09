@@ -34,6 +34,9 @@ public class Question implements BaseModel {
     @JsonIgnoreProperties(value = "questions", allowSetters = true)
     private Evaluation evaluation;
 
+    public Question() {
+    }
+
     public Question(String question, String answerA, String answerB, String answerC, String correctAnswer, Integer questionType) {
         this.question = question;
         this.answerA = answerA;
@@ -73,6 +76,30 @@ public class Question implements BaseModel {
 
     public Integer getQuestionType() {
         return questionType;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
+    }
+
+    public void setAnswerA(String answerA) {
+        this.answerA = answerA;
+    }
+
+    public void setAnswerB(String answerB) {
+        this.answerB = answerB;
+    }
+
+    public void setAnswerC(String answerC) {
+        this.answerC = answerC;
+    }
+
+    public void setCorrectAnswer(String correctAnswer) {
+        this.correctAnswer = correctAnswer;
+    }
+
+    public void setQuestionType(Integer questionType) {
+        this.questionType = questionType;
     }
 
     public void update(Question questionEntity) {
