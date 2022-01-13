@@ -1,6 +1,7 @@
 package main.service;
 
-import main.model.Chapter;
+import main.model.*;
+import main.repository.CourseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class ChapterService {
     @Autowired
     private ChapterRepository chapterRepository;
 
+    @Autowired
+    private CourseRepository courseRepository;
+
     public List<Chapter> getChapters() {
         log.debug("Request to get all Chapters");
         return chapterRepository.findAll();
@@ -28,10 +32,16 @@ public class ChapterService {
         return chapterRepository.findById(id);
     }
 
-    public Chapter addChapter(Chapter chapter) {
+    public boolean addChapter(Chapter chapter, long courseId) {
         log.debug("Request to add Chapter");
+        Optional<Course> courseOptional = courseRepository.findById(courseId);
+        if(courseOptional.isEmpty()) {
+            return false;
+        }
+
+        chapter.setCourseModel(courseOptional.get());
         chapterRepository.save(chapter);
-        return chapter;
+        return true;
     }
 
     public boolean updateChapter(Chapter chapter, Long id) {
@@ -60,5 +70,18 @@ public class ChapterService {
     public void deleteChapter(Long id) {
         log.debug("Request to delete Chapter : {}", id);
         chapterRepository.deleteById(id);
+    }
+
+    public List<Chapter> getChaptersByCourseId(long courseId) {
+        Optional<Course> courseOptional = courseRepository.findById(courseId);
+        if (courseOptional.isEmpty()) {
+            return null;
+        }
+
+        List<Chapter> chapters = chapterRepository.findChaptersByCourse(courseOptional.get());
+        if (chapters.isEmpty()) {
+            return null;
+        }
+        return chapters;
     }
 }

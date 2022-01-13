@@ -28,7 +28,6 @@ public class Chapter implements BaseModel {
 
     @ManyToOne()
     @JoinColumn(name = "course_id", referencedColumnName = "id")
-    @JsonIgnore
     private Course course;
 
     @OneToMany(targetEntity = Lesson.class, fetch = FetchType.LAZY, mappedBy = "chapter")

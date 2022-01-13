@@ -1,12 +1,17 @@
 package main.service;
 
+import main.model.Course;
+import main.model.Evaluation;
 import main.model.Question;
+import main.repository.CourseRepository;
+import main.repository.EvaluationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import main.repository.QuestionRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +23,12 @@ public class QuestionService {
     @Autowired
     private QuestionRepository questionRepository;
 
+    @Autowired
+    private EvaluationRepository evaluationRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
+
     public List<Question> getQuestions() {
         log.debug("Request to get all Questions");
         return questionRepository.findAll();
@@ -28,37 +39,74 @@ public class QuestionService {
         return questionRepository.findById(id);
     }
 
-    public Question addQuestion(Question question) {
+    public boolean addQuestion(Question question, Long evaluationId) {
         log.debug("Request to add Question");
+        Optional<Evaluation> evaluationOptional = evaluationRepository.findById(evaluationId);
+        if (evaluationOptional.isEmpty()) {
+            return false;
+        }
+
+        question.setEvaluation(evaluationOptional.get());
         questionRepository.save(question);
-        return question;
+        return true;
     }
 
-    public boolean updateQuestion(Question question, Long id) {
+    public boolean updateQuestion(Question question, Long id, Long evaluationId) {
         log.debug("Request to update Question");
-        if (questionRepository.findById(id).isPresent()) {
-            question.setId(id);
-            questionRepository.save(question);
-            return true;
-        } else {
+        if (questionRepository.findById(id).isEmpty()) {
             return false;
         }
+
+        Optional<Evaluation> evaluationOptional = evaluationRepository.findById(evaluationId);
+        if (evaluationOptional.isEmpty()) {
+            return false;
+        }
+
+        question.setId(id);
+        question.setEvaluation(evaluationOptional.get());
+        questionRepository.save(question);
+        return true;
     }
 
-    public boolean patchQuestion(Question question, Long id) {
+    public boolean patchQuestion(Question question, Long id, Long evaluationId) {
         log.debug("Request to patch Question");
-        Optional<Question> existingQuestion = questionRepository.findById(id);
-        if (existingQuestion.isPresent()) {
-            existingQuestion.get().patch(question);
-            questionRepository.save(existingQuestion.get());
-            return true;
-        } else {
+        Optional<Question> existingQuestionOptional = questionRepository.findById(id);
+        if (existingQuestionOptional.isEmpty()) {
             return false;
         }
+
+        Question existingQuestion = existingQuestionOptional.get();
+
+        existingQuestion.patch(question);
+
+        if (evaluationId != null) {
+            Optional<Evaluation> evaluationOptional = evaluationRepository.findById(evaluationId);
+            if (evaluationOptional.isEmpty()) {
+                return false;
+            }
+            existingQuestion.setEvaluation(evaluationOptional.get());
+        }
+        questionRepository.save(existingQuestion);
+
+        return true;
     }
 
-    public void deleteLesson(Long id){
+    public void deleteLesson(Long id) {
         log.debug("Request to delete Question");
         questionRepository.deleteById(id);
+    }
+
+    public List<Question> getQuestionByCourseId(long courseId) {
+
+        Optional<Course> courseOpt = courseRepository.findById(courseId);
+        if (courseOpt.isEmpty()) {
+            return null;
+        }
+        Optional<Evaluation> evaluationOpt = evaluationRepository.findEvaluationByCourse(courseOpt.get());
+        if(evaluationOpt.isEmpty()) {
+            return null;
+        }
+
+        return questionRepository.findQuestionsByEvaluation(evaluationOpt.get());
     }
 }

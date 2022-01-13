@@ -12,6 +12,7 @@ import main.service.ChapterService;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -42,11 +43,15 @@ public class ChapterController {
     }
 
     @PostMapping(path = "/chapters", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Void> addChapter(String title, String description, String orderNumber, String xp) {
+    public ResponseEntity<Void> addChapter(String title, String description, String orderNumber, String xp,
+                                           @RequestParam long courseId) {
         log.debug("REST request to add Chapter");
         Chapter chapter = new Chapter(title, description, orderNumber, xp);
-        chapterService.addChapter(chapter);
-        URI uri = WebMvcLinkBuilder.linkTo(getClass()).slash("categories").slash(chapter.getId()).toUri();
+        boolean isSuccessful = chapterService.addChapter(chapter, courseId);
+        if(!isSuccessful) {
+            return ResponseEntity.notFound().build();
+        }
+        URI uri = WebMvcLinkBuilder.linkTo(getClass()).slash("chapters").slash(chapter.getId()).toUri();
         return ResponseEntity.created(uri).build();
     }
 
@@ -72,6 +77,22 @@ public class ChapterController {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * {@code GET  /category/{categoryId} : get categories by course id
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of chapters in body.
+     */
+    @GetMapping("/chapter/course/{courseId}")
+    public ResponseEntity<List<Chapter>> getChaptersByCourseId(@PathVariable long courseId) {
+        log.debug("REST request to get chapters  by course id");
+        List<Chapter> chapters = chapterService.getChaptersByCourseId(courseId);
+        if (chapters == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(chapters);
         }
     }
 }

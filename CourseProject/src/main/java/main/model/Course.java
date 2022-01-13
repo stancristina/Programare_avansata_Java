@@ -1,5 +1,6 @@
 package main.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -35,10 +36,10 @@ public class Course implements BaseModel {
     private Evaluation evaluation;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = "courses", allowSetters = true)
     private Category category;
 
     @OneToMany(targetEntity = main.model.Chapter.class, fetch = FetchType.LAZY, mappedBy = "course")
+    @JsonIgnore
     private Set<Chapter> chapters = new HashSet<>();
 
     public Course() {

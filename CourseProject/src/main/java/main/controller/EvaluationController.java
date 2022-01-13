@@ -37,11 +37,13 @@ public class EvaluationController {
         return evaluation.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping(path = "/evaluations", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Void> addEvaluation(Long id) {
+    @PostMapping(path = "/evaluations")
+    public ResponseEntity<Void> addEvaluation(@RequestBody Evaluation evaluation, @RequestParam Long courseId) {
         log.debug("REST request to add Evaluation");
-        Evaluation evaluation = new Evaluation(id);
-        evaluationService.addEvaluation(evaluation);
+        boolean isSuccessful = evaluationService.addEvaluation(evaluation, courseId);
+        if(!isSuccessful) {
+            return ResponseEntity.badRequest().build();
+        }
         URI uri = WebMvcLinkBuilder.linkTo(getClass()).slash("evaluations").slash(evaluation.getId()).toUri();
         return ResponseEntity.created(uri).build();
     }

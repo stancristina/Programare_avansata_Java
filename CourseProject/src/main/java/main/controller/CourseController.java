@@ -1,21 +1,15 @@
 package main.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import main.model.Chapter;
 import main.model.Course;
-import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -66,38 +61,16 @@ public class CourseController {
         }
     }
 
-//    @Operation(summary = "Create a course", operationId = "addCourse")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "201", description = "Course was created",
-//                    headers = {@Header(name = "location", schema = @Schema(type = "String"))}
-//            ),
-//            @ApiResponse(responseCode = "500", description = "Something went wrong"),
-//            @ApiResponse(responseCode = "204", description = "Bulk courses created")
-//    })
-//    @PostMapping("/courses")
-//    public ResponseEntity<Void> addCourse(@RequestBody String payload, @RequestHeader(required = false, name = "X-Action") String action) {
-//        log.debug("REST request to add Course");
-//        try {
-//            if ("bulk".equals(action)) {
-//                for (Course course : new ObjectMapper().registerModule(new JavaTimeModule()).readValue(payload, Course[].class)) {
-//                    courseService.addCourse(course);
-//                }
-//                return ResponseEntity.noContent().build();
-//            } else {
-//                Course course = courseService.addCourse(new ObjectMapper().registerModule(new JavaTimeModule()).readValue(payload, Course.class));
-//                URI uri = WebMvcLinkBuilder.linkTo(getClass()).slash(course.getId()).toUri();
-//                return ResponseEntity.created(uri).build();
-//            }
-//        } catch (IOException e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
-
     @PostMapping(path = "/courses", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Void> addCourses(String title, String description, String difficulty, String released, String thumbnailUrl) {
+    public ResponseEntity<Void> addCourses(String title, String description, String difficulty, String released, String thumbnailUrl,
+                                           @RequestParam long categoryId) {
         log.debug("REST request to add Course");
         Course course = new Course(title, description, difficulty, LocalDate.parse(released), thumbnailUrl);
-        courseService.addCourse(course);
+        boolean isSuccessful = courseService.addCourse(course, categoryId);
+        if (!isSuccessful) {
+            return ResponseEntity.notFound().build();
+        }
+
         URI uri = WebMvcLinkBuilder.linkTo(getClass()).slash("courses").slash(course.getId()).toUri();
         return ResponseEntity.created(uri).build();
     }
@@ -109,9 +82,9 @@ public class CourseController {
             @ApiResponse(responseCode = "404", description = "Course not found")
     })
     @PutMapping("/courses/{id}")
-    public ResponseEntity<Void> updateCourse(@RequestBody Course course, @PathVariable Long id) {
+    public ResponseEntity<Void> updateCourse(@RequestBody Course course, @PathVariable Long id, @RequestParam long categoryId) {
         log.debug("REST request to update Course");
-        if (courseService.updateCourse(course, id)) {
+        if (courseService.updateCourse(course, id, categoryId)) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
@@ -167,4 +140,66 @@ public class CourseController {
         Optional<Course> courseModel = courseService.getCourse(id);
         return courseModel.isPresent() ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
+
+    /**
+     * {@code GET  /evaluation/{evaluationId} : get course by evaluation id
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of courses in body.
+     */
+    @GetMapping("/course/evaluation/{evaluationId}")
+    public ResponseEntity<Course> getCourseByEvaluationId(@PathVariable long evaluationId) {
+        log.debug("REST request to get course  by evaluation id");
+        Optional<Course> course = courseService.getCourseByEvaluationId(evaluationId);
+        return course.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
+     * {@code GET  /category/{categoryId} : get courses by category id
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of courses in body.
+     */
+    @GetMapping("/courses/category/{categoryId}")
+    public ResponseEntity<List<Course>> getCoursesByCategoryId(@PathVariable long categoryId) {
+        log.debug("REST request to get courses  by category id");
+        List<Course> courses = courseService.getCourseByCategoryId(categoryId);
+        if (courses == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(courses);
+        }
+    }
+
+    @Operation(summary = "Search tasks", operationId = "getTasks")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Found tasks",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = Object[].class))}
+            ),
+            @ApiResponse(responseCode = "204", description = "No tasks found")
+    })
+    @GetMapping
+    public ResponseEntity<List<Object>> getCourses (@RequestParam(required = false) String title,
+                                                  @RequestParam(required = false) String description,
+                                                  @RequestParam(required = false) String difficulty,
+                                                  @RequestParam(required = false) LocalDate released,
+                                                  @RequestParam(required = false) String thumbnailUrl,
+                                                  @RequestHeader(required = false, name="X-Fields") String fields,
+                                                  @RequestHeader(required = false, name="X-Sort") String sort) {
+        List<Course> tasks = courseService.getCourses(title, description, difficulty, released, thumbnailUrl);
+        if(tasks.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            if(sort != null && !sort.isBlank()) {
+                tasks = tasks.stream().sorted((first, second) -> BaseModel.sorter(sort).compare(first, second)).collect(Collectors.toList());
+            }
+            List<Object> items;
+            if(fields != null && !fields.isBlank()) {
+                items = tasks.stream().map(task -> task.sparseFields(fields.split(","))).collect(Collectors.toList());
+            } else {
+                items = new ArrayList<>(tasks);
+            }
+            return ResponseEntity.ok(items);
+        }
+    }
+
 }

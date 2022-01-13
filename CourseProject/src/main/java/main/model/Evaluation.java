@@ -1,7 +1,10 @@
 package main.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -17,6 +20,7 @@ public class Evaluation implements BaseModel {
 
     @OneToOne
     @JoinColumn(name = "fk_course")
+    @JsonIgnore
     private Course course;
 
     public Evaluation(Long id) {
@@ -32,5 +36,13 @@ public class Evaluation implements BaseModel {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
     }
 }

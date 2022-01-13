@@ -1,11 +1,13 @@
 package main.service;
 
+import main.model.Course;
 import main.model.Evaluation;
+import main.repository.CourseRepository;
+import main.repository.EvaluationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import main.repository.EvaluationRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,9 @@ public class EvaluationService {
     @Autowired
     private EvaluationRepository evaluationRepository;
 
+    @Autowired
+    private CourseRepository courseRepository;
+
     public List<Evaluation> getEvaluations() {
         log.debug("Request to get all Evaluations");
         return evaluationRepository.findAll();
@@ -28,10 +33,16 @@ public class EvaluationService {
         return evaluationRepository.findById(id);
     }
 
-    public Evaluation addEvaluation(Evaluation evaluation) {
+    public boolean addEvaluation(Evaluation evaluation, Long courseId) {
         log.debug("Request to add Evaluation");
+
+        Optional<Course> courseOptional = courseRepository.findById(courseId);
+        if(courseOptional.isEmpty()) {
+            return false;
+        }
+        evaluation.setCourse(courseOptional.get());
         evaluationRepository.save(evaluation);
-        return evaluation;
+        return true;
     }
 
     public boolean updateEvaluation(Evaluation evaluation, Long id) {

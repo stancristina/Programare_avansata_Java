@@ -31,6 +31,14 @@ public class Lesson {
         this.orderNumber = orderNumber;
     }
 
+    public Chapter getChapter() {
+        return chapter;
+    }
+
+    public void setChapter(Chapter chapter) {
+        this.chapter = chapter;
+    }
+
     public Long getId() {
         return id;
     }

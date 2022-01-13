@@ -3,6 +3,9 @@ package main.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "question")
@@ -100,6 +103,14 @@ public class Question implements BaseModel {
 
     public void setQuestionType(Integer questionType) {
         this.questionType = questionType;
+    }
+
+    public Evaluation getEvaluation() {
+        return evaluation;
+    }
+
+    public void setEvaluation(Evaluation evaluation) {
+        this.evaluation = evaluation;
     }
 
     public void update(Question questionEntity) {
