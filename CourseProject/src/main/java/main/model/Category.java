@@ -35,6 +35,12 @@ public class Category implements BaseModel {
         this.description = description;
     }
 
+    public Category(Long id, String title, String description) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+    }
+
     public Long getId() {
         return id;
     }

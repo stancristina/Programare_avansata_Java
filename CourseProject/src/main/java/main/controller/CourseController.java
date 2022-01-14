@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import main.model.BaseModel;
 import main.model.Course;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +19,11 @@ import main.service.CourseService;
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -169,34 +172,30 @@ public class CourseController {
         }
     }
 
-    @Operation(summary = "Search tasks", operationId = "getTasks")
+    @Operation(summary = "Search tasks", operationId = "getCourses")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Found tasks",
+            @ApiResponse(responseCode = "200", description = "Found courses",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = Object[].class))}
             ),
-            @ApiResponse(responseCode = "204", description = "No tasks found")
+            @ApiResponse(responseCode = "204", description = "No courses found")
     })
-    @GetMapping
-    public ResponseEntity<List<Object>> getCourses (@RequestParam(required = false) String title,
-                                                  @RequestParam(required = false) String description,
-                                                  @RequestParam(required = false) String difficulty,
-                                                  @RequestParam(required = false) LocalDate released,
-                                                  @RequestParam(required = false) String thumbnailUrl,
+    @GetMapping("/courses/complex")
+    public ResponseEntity<List<Object>> getCourses (
                                                   @RequestHeader(required = false, name="X-Fields") String fields,
                                                   @RequestHeader(required = false, name="X-Sort") String sort) {
-        List<Course> tasks = courseService.getCourses(title, description, difficulty, released, thumbnailUrl);
-        if(tasks.isEmpty()) {
+        List<Course> courses = courseService.getCourses();
+        if(courses.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
             if(sort != null && !sort.isBlank()) {
-                tasks = tasks.stream().sorted((first, second) -> BaseModel.sorter(sort).compare(first, second)).collect(Collectors.toList());
+                courses = courses.stream().sorted((first, second) -> BaseModel.sorter(sort).compare(first, second)).collect(Collectors.toList());
             }
             List<Object> items;
             if(fields != null && !fields.isBlank()) {
-                items = tasks.stream().map(task -> task.sparseFields(fields.split(","))).collect(Collectors.toList());
+                items = courses.stream().map(course -> course.sparseFields(fields.split(","))).collect(Collectors.toList());
             } else {
-                items = new ArrayList<>(tasks);
+                items = new ArrayList<>(courses);
             }
             return ResponseEntity.ok(items);
         }

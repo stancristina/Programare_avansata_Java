@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import main.repository.QuestionRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,30 +67,7 @@ public class QuestionService {
         return true;
     }
 
-    public boolean patchQuestion(Question question, Long id, Long evaluationId) {
-        log.debug("Request to patch Question");
-        Optional<Question> existingQuestionOptional = questionRepository.findById(id);
-        if (existingQuestionOptional.isEmpty()) {
-            return false;
-        }
-
-        Question existingQuestion = existingQuestionOptional.get();
-
-        existingQuestion.patch(question);
-
-        if (evaluationId != null) {
-            Optional<Evaluation> evaluationOptional = evaluationRepository.findById(evaluationId);
-            if (evaluationOptional.isEmpty()) {
-                return false;
-            }
-            existingQuestion.setEvaluation(evaluationOptional.get());
-        }
-        questionRepository.save(existingQuestion);
-
-        return true;
-    }
-
-    public void deleteLesson(Long id) {
+    public void deleteQuestion(Long id) {
         log.debug("Request to delete Question");
         questionRepository.deleteById(id);
     }

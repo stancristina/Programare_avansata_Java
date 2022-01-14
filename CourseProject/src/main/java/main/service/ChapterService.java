@@ -79,9 +79,6 @@ public class ChapterService {
         }
 
         List<Chapter> chapters = chapterRepository.findChaptersByCourse(courseOptional.get());
-        if (chapters.isEmpty()) {
-            return null;
-        }
         return chapters;
     }
 }

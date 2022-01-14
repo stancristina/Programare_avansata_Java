@@ -57,7 +57,7 @@ public class CategoryService {
         }
     }
 
-    public void deleteCategory(Long id) throws IOException {
+    public void deleteCategory(Long id) {
         log.debug("Request to delete Category : {}", id);
         categoryRepository.deleteById(id);
     }

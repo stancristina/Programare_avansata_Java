@@ -62,18 +62,6 @@ public class LessonService {
         }
     }
 
-    public boolean patchLesson(Lesson lesson, Long id) {
-        log.debug("Request to patch Lesson");
-        Optional<Lesson> existingLesson = lessonRepository.findById(id);
-        if (existingLesson.isPresent()) {
-            existingLesson.get().patch(lesson);
-            lessonRepository.save(existingLesson.get());
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public void deleteLesson(Long id) {
         log.debug("Request to delete Lesson");
         lessonRepository.deleteById(id);
@@ -85,11 +73,7 @@ public class LessonService {
             return null;
         }
 
-        List<Lesson> lessons = lessonRepository.findLessonsByChapter(chapterOptional.get());
-        if (lessons.isEmpty()) {
-            return null;
-        }
-        return lessons;
+        return lessonRepository.findLessonsByChapter(chapterOptional.get());
     }
 
     public List<Lesson> getLessonsByCourseFiltered(Long courseId, String filter) {

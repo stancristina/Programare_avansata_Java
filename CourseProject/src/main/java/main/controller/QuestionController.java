@@ -72,7 +72,7 @@ public class QuestionController {
         log.debug("REST request to delete Question : {}", id);
         Optional<Question> question = questionService.getQuestion(id);
         if (question.isPresent()) {
-            questionService.deleteLesson(id);
+            questionService.deleteQuestion(id);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
